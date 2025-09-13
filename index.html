@@ -1,0 +1,904 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>مخبز الصحاري — إدارة الصناديق</title>
+  <style>
+    :root{
+      --bg:#f7f7fb;--card:#fff;--muted:#6b7280;--text:#0f172a;
+      --primary:#ef4444;--primary-700:#b91c1c;--green:#16a34a;--blue:#2563eb;
+      --yellow:#f59e0b;--border:#e5e7eb;--shadow:0 8px 20px rgba(0,0,0,.06)
+    }
+    *{box-sizing:border-box}
+    html,body{height:100%}
+    body{margin:0;background:linear-gradient(135deg,#fff7f7,#fff),var(--bg);font-family:system-ui, -apple-system, Segoe UI, Roboto, "Noto Sans Arabic", "Helvetica Neue", Arial, "Noto Kufi Arabic", "Apple Color Emoji","Segoe UI Emoji";color:var(--text)}
+    .container{max-width:980px;margin:0 auto;padding:16px}
+    .card{background:var(--card);border:1px solid var(--border);border-radius:16px;box-shadow:var(--shadow)}
+    .p-2{padding:8px}.p-3{padding:12px}.p-4{padding:16px}.p-6{padding:24px}.p-8{padding:32px}
+    .mt-2{margin-top:8px}.mt-3{margin-top:12px}.mt-4{margin-top:16px}.mt-6{margin-top:24px}.mt-8{margin-top:32px}
+    .mb-2{margin-bottom:8px}.mb-3{margin-bottom:12px}.mb-4{margin-bottom:16px}.mb-6{margin-bottom:24px}.mb-8{margin-bottom:32px}
+    .grid{display:grid;gap:12px}.grid-2{grid-template-columns:repeat(2,1fr)}.grid-3{grid-template-columns:repeat(3,1fr)}
+    @media (max-width:800px){.grid-2,.grid-3{grid-template-columns:1fr}}
+    .row{display:flex;align-items:center;gap:12px}
+    .between{display:flex;align-items:center;justify-content:space-between}
+    .center{text-align:center}
+    .btn{appearance:none;border:1px solid var(--border);background:#fff;padding:10px 14px;border-radius:12px;cursor:pointer;font-weight:600}
+    .btn:disabled{opacity:.5;cursor:not-allowed}
+    .btn-primary{background:var(--primary);border-color:var(--primary);color:#fff}
+    .btn-primary:hover{background:var(--primary-700)}
+    .btn-green{background:var(--green);border-color:var(--green);color:#fff}
+    .btn-blue{background:var(--blue);border-color:var(--blue);color:#fff}
+    .btn-ghost{background:transparent;border-color:transparent;color:var(--muted)}
+    .btn-danger{background:#dc2626;border-color:#dc2626;color:#fff}
+    .btn-warning{background:#f59e0b;border-color:#f59e0b;color:#fff}
+    .tab{border-bottom:2px solid transparent;padding:10px 14px;font-weight:700;color:var(--muted);cursor:pointer}
+    .tab.active{border-bottom-color:var(--primary);color:var(--primary)}
+    .stat{background:#fff;border:1px solid var(--border);border-radius:14px;padding:14px}
+    .muted{color:var(--muted)} .danger{color:#dc2626} .success{color:#16a34a} .warn{color:#d97706}
+    input,select,textarea{width:100%;padding:12px;border:1px solid var(--border);border-radius:12px;background:#fff;color:var(--text);outline:none}
+    input:focus,select:focus,textarea:focus{border-color:#fca5a5;box-shadow:0 0 0 3px #ffe4e6}
+    .badge{display:inline-flex;align-items:center;gap:6px;background:#eef2ff;border:1px solid #c7d2fe;color:#3730a3;border-radius:999px;padding:6px 10px;font-size:12px}
+    .pill{background:#f1f5f9;border:1px solid var(--border);border-radius:999px;padding:4px 10px;font-size:12px}
+    .list{display:grid;gap:10px}
+    .driver-card{border:1px solid var(--border);border-radius:14px;padding:12px;background:#fff}
+    .divider{height:1px;background:var(--border);margin:8px 0}
+    .topbar{position:sticky;top:0;z-index:20;background:#fff;border-bottom:1px solid var(--border)}
+    .icon{width:20px;height:20px;display:inline-block}
+    .note{font-size:12px;color:#475569}
+    .kbd{font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono";background:#f1f5f9;border:1px solid #e2e8f0;border-radius:8px;padding:2px 6px}
+    .table{width:100%;border-collapse:separate;border-spacing:0 8px}
+    .table th,.table td{padding:10px 12px;background:#fff;border:1px solid var(--border)}
+    .table th{background:#f8fafc;text-align:right}
+    .table tr td:first-child,.table tr th:first-child{border-top-right-radius:10px;border-bottom-right-radius:10px}
+    .table tr td:last-child,.table tr th:last-child{border-top-left-radius:10px;border-bottom-left-radius:10px}
+    .tag-open{background:#fff7ed;border:1px solid #fed7aa;color:#9a3412;border-radius:999px;padding:4px 10px;font-size:12px}
+    .tag-closed{background:#ecfdf5;border:1px solid #bbf7d0;color:#065f46;border-radius:999px;padding:4px 10px;font-size:12px}
+    
+    /* Language Toggle */
+    .lang-toggle{position:fixed;top:20px;left:20px;z-index:1000;background:#fff;border:1px solid var(--border);border-radius:8px;padding:8px;box-shadow:var(--shadow)}
+    .lang-btn{background:none;border:none;padding:6px 12px;border-radius:6px;cursor:pointer;font-weight:600}
+    .lang-btn.active{background:var(--primary);color:#fff}
+    
+    /* RTL/LTR Support */
+    [dir="ltr"] .table th{text-align:left}
+    [dir="ltr"] .table tr td:first-child,[dir="ltr"] .table tr th:first-child{border-top-left-radius:10px;border-bottom-left-radius:10px;border-top-right-radius:0;border-bottom-right-radius:0}
+    [dir="ltr"] .table tr td:last-child,[dir="ltr"] .table tr th:last-child{border-top-right-radius:10px;border-bottom-right-radius:10px;border-top-left-radius:0;border-bottom-left-radius:0}
+    [dir="ltr"] .lang-toggle{left:auto;right:20px}
+  </style>
+</head>
+<body>
+  <!-- Language Toggle -->
+  <div class="lang-toggle">
+    <button class="lang-btn active" data-lang="ar">العربية</button>
+    <button class="lang-btn" data-lang="en">English</button>
+  </div>
+  
+  <div id="app"></div>
+
+  <script>
+  // ====== Translation System ======
+  const translations = {
+    ar: {
+      appTitle: "مخبز الصحاري",
+      appSubtitle: "النظام المتقدم لإدارة الصناديق",
+      driver: "سائق", manager: "مدير", accountant: "محاسب",
+      chooseDriver: "اختر السائق", password: "كلمة المرور", login: "تسجيل الدخول",
+      incorrectPassword: "كلمة المرور غير صحيحة", accountDisabled: "حساب السائق غير مفعل",
+      currentStorageType: "نوع التخزين الحالي:", storageNote: "يمكن تغييره من لوحة التحكم بعد الدخول كـ",
+      defaultPasswords: "كلمات المرور الافتراضية:", driverPass: "السائق: 1234", managerPass: "المدير: manager123", accountantPass: "المحاسب: accountant123",
+      driverDashboard: "لوحة السائق", managerDashboard: "لوحة المدير", accountantDashboard: "لوحة المحاسب",
+      checkout: "📦 تسجيل خروج", return: "↩️ تسجيل إرجاع", history: "📋 السجل", notifications: "🔔 الإشعارات",
+      statistics: "📊 الإحصائيات", driversManagement: "👥 إدارة السائقين", reports: "📈 التقارير", control: "⚙️ التحكم",
+      overview: "💰 نظرة عامة", detailed: "📊 تفصيلي", invoices: "🧾 الفواتير",
+      total: "إجمالي", lost: "مفقود", lossRate: "نسبة الهدر", target: "الهدف", points: "النقاط",
+      totalBoxes: "إجمالي الصناديق", totalLoss: "إجمالي الخسارة", aed: "درهم",
+      edit: "تعديل", delete: "حذف", add: "إضافة", save: "حفظ", cancel: "إلغاء", close: "إغلاق", logout: "تسجيل خروج", whatsapp: "💬 واتساب",
+      outBoxes: "عدد الصناديق الخارجة", returnBoxes: "عدد الصناديق المرجعة", customers: "أسماء العملاء",
+      addCustomer: "+ إضافة عميل", removeCustomer: "حذف", customer: "العميل", notes: "ملاحظات", optional: "(اختياري)",
+      submitCheckout: "تسجيل خروج", closeTrip: "إغلاق الرحلة", deleteTrip: "حذف الرحلة",
+      openTrip: "رحلة مفتوحة", closedTrip: "مغلقة", status: "الحالة", date: "التاريخ", out: "خارج", returned: "مرجع",
+      checkoutSuccess: "تم تسجيل الخروج بنجاح ✅", returnSuccess: "تم تسجيل الإرجاع وإغلاق الرحلة ✅",
+      enterOutBoxes: "يرجى إدخال عدد الصناديق الخارجة", enterReturnBoxes: "يرجى إدخال عدد الصناديق المرجعة",
+      returnCannotExceedOut: "المرجع لا يمكن أن يكون أكبر من الخارج", deleteConfirm: "حذف هذه الرحلة؟",
+      noOpenTrips: "لا توجد رحلات مفتوحة حالياً لهذا السائق.", noTripsYet: "لا توجد رحلات مسجلة بعد",
+      noNotifications: "لا توجد إشعارات", clearAll: "مسح الكل",
+      addNewDriver: "+ إضافة سائق جديد", driverName: "اسم السائق", phoneNumber: "رقم الهاتف", monthlyTarget: "الهدف الشهري",
+      addDriverSuccess: "تم إضافة السائق بنجاح!", updateDriverSuccess: "تم تحديث بيانات السائق!",
+      deleteDriverConfirm: "هل تريد حذف هذا السائق؟", driverDeletedSuccess: "تم حذف السائق ورحلاته!",
+      generalStats: "الإحصائيات العامة", driversCount: "عدد السائقين:", closedTrips: "الرحلات المغلقة:",
+      lostBoxes: "الصناديق المفقودة:", bestPerformance: "أفضل الأداءات", exportReport: "⬇️ تصدير التقرير",
+      storage: "التخزين", current: "الحالي:", switchTo: "تبديل إلى", storageToggleNote: "عند التبديل، يتم حفظ نسخة من البيانات في النوع الجديد.",
+      backup: "نسخة احتياطية", exportJSON: "تصدير JSON", importJSON: "استيراد JSON", backupNote: "التصدير يحفظ ملف",
+      dangerousOps: "عمليات خطرة", clearTripsOnly: "مسح كل الرحلات فقط", resetAllData: "مسح كل البيانات والبدء من جديد",
+      confirmBeforeExecution: "سيتم التأكيد قبل التنفيذ.",
+      allPeriods: "جميع الفترات", today: "اليوم", thisWeek: "هذا الأسبوع", thisMonth: "هذا الشهر", filterReports: "تصفية التقارير",
+      boxPrice: "سعر الصندوق الواحد: 20 درهم", createInvoice: "إنشاء فاتورة", lostBoxesCount: "عدد الصناديق المفقودة:",
+      boxPrice2: "سعر الصندوق:", totalAmount: "المبلغ الإجمالي:",
+      whatsappAlert: "🚨 تنبيه من مخبز الصحاري", dearDriver: "عزيزي", lossRateReached: "نسبة الهدر وصلت إلى",
+      pleaseBeCareful: "يرجى الانتباه أكثر للمحافظة على الصناديق", thanksCooperation: "شكراً لتعاونك",
+      noValidPhone: "لا يوجد رقم هاتف صالح لهذا السائق"
+    },
+    en: {
+      appTitle: "Al-Sahari Bakery",
+      appSubtitle: "Advanced Box Management System",
+      driver: "Driver", manager: "Manager", accountant: "Accountant",
+      chooseDriver: "Choose Driver", password: "Password", login: "Login",
+      incorrectPassword: "Incorrect Password", accountDisabled: "Driver account is disabled",
+      currentStorageType: "Current storage type:", storageNote: "Can be changed from control panel after logging in as",
+      defaultPasswords: "Default passwords:", driverPass: "Driver: 1234", managerPass: "Manager: manager123", accountantPass: "Accountant: accountant123",
+      driverDashboard: "Driver Dashboard", managerDashboard: "Manager Dashboard", accountantDashboard: "Accountant Dashboard",
+      checkout: "📦 Checkout", return: "↩️ Return", history: "📋 History", notifications: "🔔 Notifications",
+      statistics: "📊 Statistics", driversManagement: "👥 Drivers Management", reports: "📈 Reports", control: "⚙️ Control",
+      overview: "💰 Overview", detailed: "📊 Detailed", invoices: "🧾 Invoices",
+      total: "Total", lost: "Lost", lossRate: "Loss Rate", target: "Target", points: "Points",
+      totalBoxes: "Total Boxes", totalLoss: "Total Loss", aed: "AED",
+      edit: "Edit", delete: "Delete", add: "Add", save: "Save", cancel: "Cancel", close: "Close", logout: "Logout", whatsapp: "💬 WhatsApp",
+      outBoxes: "Number of boxes out", returnBoxes: "Number of boxes returned", customers: "Customer names",
+      addCustomer: "+ Add Customer", removeCustomer: "Remove", customer: "Customer", notes: "Notes", optional: "(Optional)",
+      submitCheckout: "Submit Checkout", closeTrip: "Close Trip", deleteTrip: "Delete Trip",
+      openTrip: "Open Trip", closedTrip: "Closed", status: "Status", date: "Date", out: "Out", returned: "Returned",
+      checkoutSuccess: "Checkout recorded successfully ✅", returnSuccess: "Return recorded and trip closed ✅",
+      enterOutBoxes: "Please enter number of boxes out", enterReturnBoxes: "Please enter number of boxes returned",
+      returnCannotExceedOut: "Return cannot exceed boxes out", deleteConfirm: "Delete this trip?",
+      noOpenTrips: "No open trips currently for this driver.", noTripsYet: "No trips recorded yet",
+      noNotifications: "No notifications", clearAll: "Clear All",
+      addNewDriver: "+ Add New Driver", driverName: "Driver Name", phoneNumber: "Phone Number", monthlyTarget: "Monthly Target",
+      addDriverSuccess: "Driver added successfully!", updateDriverSuccess: "Driver data updated!",
+      deleteDriverConfirm: "Do you want to delete this driver?", driverDeletedSuccess: "Driver and trips deleted!",
+      generalStats: "General Statistics", driversCount: "Number of drivers:", closedTrips: "Closed trips:",
+      lostBoxes: "Lost boxes:", bestPerformance: "Best Performances", exportReport: "⬇️ Export Report",
+      storage: "Storage", current: "Current:", switchTo: "Switch to", storageToggleNote: "When switching, a copy of data is saved to the new type.",
+      backup: "Backup", exportJSON: "Export JSON", importJSON: "Import JSON", backupNote: "Export saves file",
+      dangerousOps: "Dangerous Operations", clearTripsOnly: "Clear all trips only", resetAllData: "Clear all data and start fresh",
+      confirmBeforeExecution: "Confirmation will be requested before execution.",
+      allPeriods: "All Periods", today: "Today", thisWeek: "This Week", thisMonth: "This Month", filterReports: "Filter Reports",
+      boxPrice: "Box price: 20 AED each", createInvoice: "Create Invoice", lostBoxesCount: "Number of lost boxes:",
+      boxPrice2: "Box price:", totalAmount: "Total amount:",
+      whatsappAlert: "🚨 Alert from Al-Sahari Bakery", dearDriver: "Dear", lossRateReached: "Loss rate has reached",
+      pleaseBeCareful: "Please be more careful to preserve the boxes", thanksCooperation: "Thank you for your cooperation",
+      noValidPhone: "No valid phone number for this driver"
+    }
+  };
+
+  // Language state
+  let currentLang = localStorage.getItem('language') || 'ar';
+  
+  // Translation function
+  function t(key) {
+    return translations[currentLang][key] || key;
+  }
+  
+  // Set language and update UI
+  function setLanguage(lang) {
+    currentLang = lang;
+    localStorage.setItem('language', lang);
+    
+    // Update HTML attributes
+    document.documentElement.lang = lang;
+    document.documentElement.dir = lang === 'ar' ? 'rtl' : 'ltr';
+    
+    // Update title
+    document.title = lang === 'ar' ? 
+      'مخبز الصحاري — إدارة الصناديق' : 
+      'Al-Sahari Bakery — Box Management';
+      
+    // Update active language button
+    document.querySelectorAll('.lang-btn').forEach(btn => {
+      btn.classList.toggle('active', btn.dataset.lang === lang);
+    });
+    
+    // Only re-render if app is already initialized
+    if(document.getElementById('app').innerHTML) {
+      render();
+    }
+  }
+
+  // ====== Original Code (Updated with translations) ======
+  const initialDrivers = [
+    { id: 1, name: 'RAMIS',   phone: '971501234567', totalBoxes: 500, lostBoxes: 50,  lossRate: 10, monthlyTarget: 1000, points: 85, password: '1234', active: true },
+    { id: 2, name: 'RAMSHAD', phone: '971501234568', totalBoxes: 480, lostBoxes: 120, lossRate: 25, monthlyTarget: 1000, points: 45, password: '1234', active: true },
+    { id: 3, name: 'MADHU',   phone: '971501234569', totalBoxes: 520, lostBoxes: 78,  lossRate: 15, monthlyTarget: 1000, points: 75, password: '1234', active: true },
+    { id: 4, name: 'SIDHIQ',  phone: '971501234570', totalBoxes: 450, lostBoxes: 135, lossRate: 30, monthlyTarget: 1000, points: 25, password: '1234', active: true },
+    { id: 5, name: 'ASIF',    phone: '971501234571', totalBoxes: 490, lostBoxes: 49,  lossRate: 10, monthlyTarget: 1000, points: 90, password: '1234', active: true }
+  ];
+  
+  const deepcopy = (o)=>JSON.parse(JSON.stringify(o));
+  function zeroDrivers(driversArr){
+    return driversArr.map(d => ({
+      id: d.id, name: d.name, phone: d.phone, password: d.password,
+      monthlyTarget: Number(d.monthlyTarget)||1000, active: d.active!==false,
+      totalBoxes: 0, lostBoxes: 0, lossRate: 0, points: 100
+    }));
+  }
+  function getStorage(){ const useLocal = JSON.parse(localStorage.getItem('useLocal')||'false'); return useLocal ? localStorage : sessionStorage; }
+  const Storage = getStorage();
+  const state = {
+    currentUser: null, userType: '',
+    useLocal: Storage===localStorage,
+    drivers: JSON.parse(Storage.getItem('drivers')||'null') || deepcopy(initialDrivers),
+    trips:   JSON.parse(Storage.getItem('trips')||'null')   || [],
+    baseDrivers: JSON.parse(Storage.getItem('baseDrivers')||'null') || deepcopy(initialDrivers),
+    driverTab: 'checkout', managerTab: 'stats', accountantTab:'overview', dateFilter:'all',
+    notifications:[]
+  };
+  function persist(){
+    const S = state.useLocal ? localStorage : sessionStorage;
+    S.setItem('drivers', JSON.stringify(state.drivers));
+    S.setItem('trips', JSON.stringify(state.trips));
+    S.setItem('baseDrivers', JSON.stringify(state.baseDrivers));
+    localStorage.setItem('useLocal', JSON.stringify(state.useLocal));
+  }
+  const fmtDate = d => new Date(d).toISOString().split('T')[0];
+  const todayStr = () => fmtDate(new Date());
+  const el = (sel,root=document)=>root.querySelector(sel);
+  const els = (sel,root=document)=>Array.from(root.querySelectorAll(sel));
+  
+  function whatsappAlertFor(driver){
+    const msg = `${t('whatsappAlert')}\n\n${t('dearDriver')} ${driver.name}\n${t('lossRateReached')} ${driver.lossRate}%\n${t('pleaseBeCareful')}\n\n${t('thanksCooperation')}`;
+    const raw = (driver.phone || '').toString();
+    const phone = raw.replace(/\D+/g,'');
+    if(!phone){
+      alert(t('noValidPhone')); return;
+    }
+    const url = `https://api.whatsapp.com/send?phone=${phone}&text=${encodeURIComponent(msg)}`;
+    try{
+      const a = document.createElement('a');
+      a.href = url; a.target = '_blank'; a.rel = 'noopener';
+      document.body.appendChild(a); a.click();
+      setTimeout(()=>{ try{ document.body.removeChild(a);}catch(_){}} , 1000);
+    }catch(e){
+      location.href = url;
+    }
+  }
+
+  function totals(){
+    const closed = state.trips.filter(t=>t.status==='closed');
+    const totalBoxesOut = closed.reduce((s,t)=>s + Number(t.outBoxes||0),0);
+    const totalBoxesLost = closed.reduce((s,t)=>s + Number(t.lostBoxes||0),0);
+    return { totalBoxesOut, totalBoxesLost, totalLoss: totalBoxesLost*20 };
+  }
+  function recomputeFromTrips(){
+    state.drivers = zeroDrivers(state.drivers);
+    const closed = state.trips.filter(t=>t.status==='closed');
+    for(const trip of closed){
+      const d = state.drivers.find(x=>x.id===trip.driverId);
+      if(!d) continue;
+      d.totalBoxes += Number(trip.outBoxes||0);
+      d.lostBoxes  += Number(trip.lostBoxes||0);
+      d.lossRate = d.totalBoxes>0 ? Number(((d.lostBoxes/d.totalBoxes)*100).toFixed(1)) : 0;
+      const lost = Number(trip.lostBoxes||0);
+      let pointsChange = 0;
+      if (lost===0) pointsChange = 5;
+      else if (lost<=2) pointsChange = 2;
+      else if (lost<=5) pointsChange = -1;
+      else pointsChange = -3;
+      d.points = Math.max(0, (d.points||0) + pointsChange);
+    }
+  }
+
+  function updateDriver(id, updates){ state.drivers = state.drivers.map(d=>d.id===id?{...d,...updates}:d); persist(); render(); }
+  function addDriver(newD){
+    const id = Date.now();
+    const d = { id, name:newD.name, phone:newD.phone, password:newD.password, monthlyTarget:Number(newD.monthlyTarget)||1000, totalBoxes:0, lostBoxes:0, lossRate:0, points:100, active:true };
+    state.drivers = [...state.drivers, d];
+    state.baseDrivers = [...state.baseDrivers, {id, name:d.name, phone:d.phone, password:d.password, monthlyTarget:d.monthlyTarget, totalBoxes:0, lostBoxes:0, lossRate:0, points:100, active:true}];
+    persist(); render(); alert(t('addDriverSuccess'));
+  }
+  function deleteDriver(id){
+    if(!confirm(t('deleteDriverConfirm'))) return;
+    state.drivers = state.drivers.filter(d=>d.id!==id);
+    state.baseDrivers = state.baseDrivers.filter(d=>d.id!==id);
+    state.trips = state.trips.filter(t=>t.driverId!==id);
+    persist(); render(); alert(t('driverDeletedSuccess'));
+  }
+
+  function addCheckoutTrip({driverId,outBoxes,customers}){
+    const t = { id: Date.now(), driverId, outBoxes:Number(outBoxes), returnBoxes:null, lostBoxes:null, customers:customers||[], notes:'', status:'open', date: todayStr(), timestamp:new Date().toISOString() };
+    state.trips = [...state.trips, t];
+    persist(); render();
+    alert(t('checkoutSuccess'));
+  }
+  function closeTrip({tripId, returnBoxes, notes}){
+    state.trips = state.trips.map(t=>{
+      if(t.id!==tripId) return t;
+      const ret = Number(returnBoxes);
+      const lost = Math.max(0, Number(t.outBoxes) - ret);
+      return { ...t, returnBoxes: ret, lostBoxes: lost, notes: notes||t.notes, status:'closed' };
+    });
+    recomputeFromTrips(); persist(); render();
+    alert(t('returnSuccess'));
+  }
+  function deleteTrip(id){
+    if(!confirm(t('deleteConfirm'))) return;
+    state.trips = state.trips.filter(t=>t.id!==id);
+    recomputeFromTrips(); persist(); render();
+  }
+  function updateTrip(id, updates){
+    state.trips = state.trips.map(t=>t.id===id?{...t, ...updates}:t);
+    if((updates.status && updates.status==='closed') || updates.returnBoxes!=null || updates.lostBoxes!=null){
+      recomputeFromTrips();
+    }
+    persist(); render();
+  }
+
+  function IconStar(){ return `<svg class="icon" viewBox="0 0 24 24" fill="none" stroke="#f59e0b" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15 9 22 9 16.8 13.2 19 21 12 16.8 5 21 7.2 13.2 2 9 9 9 12 2"/></svg>`}
+  function IconBox(){ return `<svg class="icon" viewBox="0 0 24 24" fill="none" stroke="#2563eb" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path><polyline points="3.27 6.96 12 12 20.73 6.96"></polyline><line x1="12" y1="22" x2="12" y2="12"></line></svg>`}
+  function IconBell(){ return `<svg class="icon" viewBox="0 0 24 24" fill="none" stroke="#9ca3af" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 5-3 9h18c0-4-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>`}
+  function IconLogout(){ return `<svg class="icon" viewBox="0 0 24 24" fill="none" stroke="#475569" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>`}
+  function IconGear(){ return `<svg class="icon" viewBox="0 0 24 24" fill="none" stroke="#334155" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09a1.65 1.65 0 0 0-1-1.51 1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09a1.65 1.65 0 0 0 1.51-1 1.65 1.65 0 0 0-.33-1.82l-.06-.06A2 2 0 1 1 7.1 4.1l.06.06a1.65 1.65 0 0 0 1.82.33h0A1.65 1.65 0 0 0 10.5 3.0V3a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51h0a1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82v0A1.65 1.65 0 0 0 21 10.5H21a2 2 0 1 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>`}
+
+  function DriverCardView(d, {showActions=false}={}){
+    return `
+      <div class="driver-card">
+        <div class="between mb-3">
+          <div class="row">
+            ${showActions?`
+              <button class="btn" data-action="edit-driver" data-id="${d.id}">${t('edit')}</button>
+              <button class="btn" style="color:#dc2626;border-color:#fecaca" data-action="delete-driver" data-id="${d.id}">${t('delete')}</button>
+            `:''}
+            <span class="row pill"><span>${IconStar()}</span><span>${d.points}</span></span>
+          </div>
+          <div class="center" style="text-align:right">
+            <div style="font-weight:700">${d.name}</div>
+            <div class="muted" style="font-size:12px">${d.phone}</div>
+          </div>
+        </div>
+        <div class="grid grid-3 mb-3 center">
+          <div><div class="muted" style="font-size:12px">${t('total')}</div><div style="font-weight:600">${d.totalBoxes}</div></div>
+          <div><div class="muted" style="font-size:12px">${t('lost')}</div><div class="danger" style="font-weight:600">${d.lostBoxes}</div></div>
+          <div><div class="muted" style="font-size:12px">${t('lossRate')}</div>
+            <div style="font-weight:600" class="${d.lossRate>20?'danger':d.lossRate>10?'warn':'success'}">${d.lossRate}%</div>
+          </div>
+        </div>
+        <div class="between">
+          <div class="muted" style="font-size:12px">${t('target')}: ${d.monthlyTarget}</div>
+          ${d.lossRate>20?`<button class="btn btn-green" data-action="whats" data-id="${d.id}">${t('whatsapp')}</button>`:''}
+        </div>
+      </div>
+    `;
+  }
+
+  function LoginScreen(){
+    const activeDrivers = state.drivers.filter(d=>d.active);
+    return `
+      <div class="container" style="min-height:100vh;display:grid;place-items:center">
+        <div class="card p-8" style="width:min(520px,100%)">
+          <div class="center mb-8">
+            <div style="width:96px;height:96px;margin:0 auto 12px;background:var(--primary);border-radius:999px;display:grid;place-items:center">${IconBox()}</div>
+            <h1 style="margin:0 0 8px;color:var(--primary)">${t('appTitle')}</h1>
+            <div class="muted">${t('appSubtitle')}</div>
+          </div>
+          <div class="grid grid-3 mb-6">
+            <button class="card p-4 center role-btn" data-role="driver">👨‍✈️<div class="mt-2" style="font-weight:600">${t('driver')}</div></button>
+            <button class="card p-4 center role-btn" data-role="manager">👥<div class="mt-2" style="font-weight:600">${t('manager')}</div></button>
+            <button class="card p-4 center role-btn" data-role="accountant">💵<div class="mt-2" style="font-weight:600">${t('accountant')}</div></button>
+          </div>
+          <div id="driver-select" class="mb-3" style="display:none">
+            <select id="driverId">
+              <option value="">${t('chooseDriver')}</option>
+              ${activeDrivers.map(d=>`<option value="${d.id}">${d.name}</option>`).join('')}
+            </select>
+          </div>
+          <div class="mb-3"><input type="password" id="password" placeholder="${t('password')}" /></div>
+          <div id="login-error" class="card p-3" style="display:none;background:#fef2f2;border-color:#fecaca;color:#b91c1c">${t('incorrectPassword')}</div>
+          <button class="btn btn-primary" id="login-btn" style="width:100%">${t('login')}</button>
+          <div class="mt-6 center muted note">
+            <div>${t('currentStorageType')} <span class="kbd">${state.useLocal?'localStorage':'sessionStorage'}</span></div>
+            <div class="mt-1">${t('storageNote')} <b>${t('manager')}</b>.</div>
+          </div>
+          <div class="mt-6 center muted" style="font-size:12px">
+            <div>${t('defaultPasswords')}</div>
+            <div>${t('driverPass')} | ${t('managerPass')} | ${t('accountantPass')}</div>
+          </div>
+        </div>
+      </div>
+    `;
+  }
+  
+  function Topbar(title){
+    return `
+      <div class="topbar">
+        <div class="container between p-4">
+          <div class="row"><button class="btn btn-ghost" id="logout">${IconLogout()}</button></div>
+          <div class="row">
+            ${state.userType==='manager'?`<button class="btn" id="open-control">${IconGear()} <span>${t('control')}</span></button>`:''}
+            <h1 style="margin:0">${title}</h1>
+          </div>
+        </div>
+      </div>`;
+  }
+
+  function DriverDashboard(){
+    const d = state.currentUser;
+    const myTrips = state.trips.filter(t=>t.driverId===d.id);
+    const openTrips = myTrips.filter(t=>t.status==='open');
+    const closedTrips = myTrips.filter(t=>t.status==='closed');
+    return `
+      ${Topbar(t('driverDashboard'))}
+      <div class="container row">
+        <button class="tab ${state.driverTab==='checkout'?'active':''}" data-driver-tab="checkout">${t('checkout')}</button>
+        <button class="tab ${state.driverTab==='return'?'active':''}"   data-driver-tab="return">${t('return')}</button>
+        <button class="tab ${state.driverTab==='history'?'active':''}"  data-driver-tab="history">${t('history')}</button>
+        <button class="tab ${state.driverTab==='notifications'?'active':''}" data-driver-tab="notifications">${t('notifications')}</button>
+      </div>
+      <div class="container mt-4">
+        ${state.driverTab==='checkout' ? DriverCheckoutView() : ''}
+        ${state.driverTab==='return'   ? DriverReturnView(openTrips)   : ''}
+        ${state.driverTab==='history'  ? DriverHistoryView(openTrips, closedTrips) : ''}
+        ${state.driverTab==='notifications' ? DriverNotifsView() : ''}
+      </div>`;
+  }
+
+  function DriverCheckoutView(){
+    return `
+      <div class="card p-6">
+        <h2 class="mb-4" style="margin:0;font-size:18px;font-weight:800">${t('checkout')}</h2>
+        <div class="grid">
+          <input type="number" id="outBoxes" placeholder="${t('outBoxes')}" />
+          <div id="customers-wrap" class="grid">
+            <label class="muted">${t('customers')}</label>
+            <div class="row">
+              <button class="btn" id="remove-customer">${t('removeCustomer')}</button>
+              <input type="text" class="customer-input" placeholder="${t('customer')} 1" />
+            </div>
+          </div>
+          <button class="btn" id="add-customer">${t('addCustomer')}</button>
+          <button class="btn btn-primary" id="submit-checkout">${t('submitCheckout')}</button>
+        </div>
+      </div>`;
+  }
+
+  function DriverReturnView(openTrips){
+    return `
+      <div class="card p-6">
+        <h2 class="mb-4" style="margin:0;font-size:18px;font-weight:800">${t('return')}</h2>
+        ${openTrips.length===0 ? `<div class="note">${t('noOpenTrips')}</div>` : `
+          <div class="list">
+            ${openTrips.slice().reverse().map(t=>`
+              <div class="card p-4">
+                <div class="between mb-2">
+                  <span class="tag-open">${t('openTrip')} - ${t.date}</span>
+                  <span class="muted" style="font-size:12px">${t('out')}: <b>${t.outBoxes}</b></span>
+                </div>
+                <div class="grid grid-2">
+                  <input type="number" class="ret-input" data-trip="${t.id}" placeholder="${t('returnBoxes')}" />
+                  <input type="text" class="note-input" data-trip="${t.id}" placeholder="${t('notes')} ${t('optional')}" />
+                </div>
+                <div class="row mt-3">
+                  <button class="btn btn-blue do-close" data-trip="${t.id}">${t('closeTrip')}</button>
+                  <button class="btn btn-danger do-del" data-trip="${t.id}">${t('deleteTrip')}</button>
+                </div>
+              </div>
+            `).join('')}
+          </div>
+        `}
+      </div>`;
+  }
+
+  function DriverHistoryView(openTrips, closedTrips){
+    return `
+      <div class="grid">
+        <div class="card p-4">
+          <h3 class="mb-3" style="margin:0">${t('history')}</h3>
+          ${openTrips.length===0 && closedTrips.length===0 ? `<div class="card p-8 center muted">${IconBox()}<div class="mt-2">${t('noTripsYet')}</div></div>` : `
+            <table class="table">
+              <thead><tr><th>${t('status')}</th><th>${t('date')}</th><th>${t('out')}</th><th>${t('returned')}</th><th>${t('lost')}</th><th>${t('notes')}</th></tr></thead>
+              <tbody>
+                ${[...openTrips, ...closedTrips].slice().reverse().map(t=>`
+                  <tr>
+                    <td>${t.status==='open' ? `<span class="tag-open">${t('openTrip')}</span>` : `<span class="tag-closed">${t('closedTrip')}</span>`}</td>
+                    <td>${t.date}</td>
+                    <td>${t.outBoxes}</td>
+                    <td>${t.returnBoxes??'-'}</td>
+                    <td class="danger"><b>${t.lostBoxes??'-'}</b></td>
+                    <td>${t.notes||''}</td>
+                  </tr>
+                `).join('')}
+              </tbody>
+            </table>
+          `}
+        </div>
+      </div>`;
+  }
+
+  function DriverNotifsView(){
+    return `
+      <div class="card p-4">
+        <div class="between mb-4">
+          <button class="btn text-red" id="clear-notifs">${t('clearAll')}</button>
+          <h3 style="margin:0">${t('notifications')}</h3>
+        </div>
+        ${state.notifications.length===0?`<div class="center muted" style="padding:32px 0">${IconBell()}<div class="mt-2">${t('noNotifications')}</div></div>`:`
+          <div class="list">
+            ${state.notifications.map(n=>`
+              <div class="p-3 card" style="border-right:4px solid ${n.type==='warning'?'#f59e0b':n.type==='danger'?'#ef4444':'#3b82f6'};background:${n.type==='warning'?'#fffbeb':n.type==='danger'?'#fef2f2':'#eff6ff'}">
+                <div>${n.message}</div>
+                <div class="muted" style="font-size:12px">${n.time}</div>
+              </div>
+            `).join('')}
+          </div>`}
+      </div>`;
+  }
+
+  function ManagerDashboard(){
+    const {totalBoxesOut,totalBoxesLost,totalLoss}=totals();
+    const highLoss = state.drivers.filter(d=>d.lossRate>20);
+    return `
+      ${Topbar(t('managerDashboard'))}
+      <div class="container mt-4 grid">
+        <div class="card p-2">
+          <div class="row">
+            <button class="tab ${state.managerTab==='stats'?'active':''}" data-manager-tab="stats">${t('statistics')}</button>
+            <button class="tab ${state.managerTab==='drivers'?'active':''}" data-manager-tab="drivers">${t('driversManagement')}</button>
+            <button class="tab ${state.managerTab==='reports'?'active':''}" data-manager-tab="reports">${t('reports')}</button>
+            <button class="tab ${state.managerTab==='control'?'active':''}" data-manager-tab="control">${t('control')}</button>
+          </div>
+        </div>
+        ${state.managerTab==='stats'?`
+          <div class="grid grid-2">
+            <div class="stat"><div class="between"><span class="muted">${t('totalBoxes')} (${t('closedTrip')})</span><span class="text-blue" style="font-weight:800">${totalBoxesOut}</span></div></div>
+            <div class="stat"><div class="between"><span class="muted">${t('totalLoss')} (${t('closedTrip')})</span><span class="danger" style="font-weight:800">${totalLoss} ${t('aed')}</span></div></div>
+          </div>
+          ${highLoss.length?`
+            <div class="card p-4" style="background:#fef2f2;border-color:#fecaca">
+              <h3 class="mb-3" style="margin:0;color:#991b1b">سائقين يحتاجون متابعة</h3>
+              <div class="list">
+                ${highLoss.map(d=>`
+                  <div class="between card p-3">
+                    <div class="row">
+                      <button class="btn btn-green" data-action="whats" data-id="${d.id}">${t('whatsapp')}</button>
+                      <span class="danger" style="font-weight:700">${d.lossRate}%</span>
+                    </div>
+                    <b>${d.name}</b>
+                  </div>`).join('')}
+              </div>
+            </div>`:''}
+          <div class="card p-4">
+            <h3 class="mb-3" style="margin:0">أداء جميع السائقين</h3>
+            <div class="list">${state.drivers.map(d=>DriverCardView(d,{showActions:false})).join('')}</div>
+          </div>`:''}
+        ${state.managerTab==='drivers'? ManagerDriversView() : ''}
+        ${state.managerTab==='reports'? ReportsView() : ''}
+        ${state.managerTab==='control'? ControlPanelView() : ''}
+      </div>`;
+  }
+
+  function ManagerDriversView(){
+    return `
+      <div class="card p-4">
+        <div class="between mb-4">
+          <button class="btn btn-green" id="show-add-driver">${t('addNewDriver')}</button>
+          <h3 style="margin:0">${t('driversManagement')}</h3>
+        </div>
+        <div id="add-driver-form" class="card p-4" style="display:none;background:#f8fafc">
+          <h4 class="mb-3" style="margin:0">${t('addNewDriver')}</h4>
+          <div class="grid grid-2">
+            <input id="d-name" placeholder="${t('driverName')}" />
+            <input id="d-phone" placeholder="${t('phoneNumber')}" />
+            <input id="d-pass" placeholder="${t('password')}" />
+            <input id="d-target" type="number" placeholder="${t('monthlyTarget')}" value="1000" />
+          </div>
+          <div class="row mt-3"><button class="btn" id="cancel-add">${t('cancel')}</button><button class="btn btn-green" id="do-add">${t('add')}</button></div>
+        </div>
+        <div id="edit-driver-form" class="card p-4" style="display:none;background:#eff6ff">
+          <h4 class="mb-3" style="margin:0">${t('edit')} بيانات السائق</h4>
+          <input type="hidden" id="e-id" />
+          <div class="grid grid-2">
+            <input id="e-name" placeholder="${t('driverName')}" />
+            <input id="e-phone" placeholder="${t('phoneNumber')}" />
+            <input id="e-pass" placeholder="${t('password')}" />
+            <input id="e-target" type="number" placeholder="${t('monthlyTarget')}" />
+          </div>
+          <div class="row mt-3"><button class="btn" id="cancel-edit">${t('cancel')}</button><button class="btn btn-blue" id="do-edit">${t('save')} التغييرات</button></div>
+        </div>
+        <div class="card p-4 mt-4">
+          <h4 class="mb-3" style="margin:0">🛠 كل الرحلات</h4>
+          ${TripsManagerTable()}
+        </div>
+        <div class="list mt-4" id="drivers-list">${state.drivers.map(d=>DriverCardView(d,{showActions:true})).join('')}</div>
+      </div>`;
+  }
+
+  function TripsManagerTable(){
+    if(!state.trips.length) return `<div class="muted">لا توجد رحلات بعد.</div>`;
+    const rows = state.trips.slice().reverse().map(t=>{
+      const d = state.drivers.find(x=>x.id===t.driverId) || {name:'(محذوف)'};
+      const statusTag = t.status==='closed' ? `<span class="tag-closed">${t('closedTrip')}</span>` : `<span class="tag-open">${t('openTrip')}</span>`;
+      return `
+        <tr data-trip="${t.id}">
+          <td>${statusTag}</td>
+          <td>${t.date}</td>
+          <td>${d.name}</td>
+          <td>${t.outBoxes}</td>
+          <td>${t.returnBoxes??'-'}</td>
+          <td class="danger"><b>${t.lostBoxes??'-'}</b></td>
+          <td><input class="trip-notes" value="${t.notes||''}" /></td>
+          <td class="row">
+            ${t.status==='open' ? `<input class="trip-ret" type="number" placeholder="مرجع" style="width:90px"/> <button class="btn btn-blue do-close">${t('close')}</button>` : ''}
+            <button class="btn btn-danger do-del">${t('delete')}</button>
+          </td>
+        </tr>`;
+    }).join('');
+    return `<table class="table"><thead><tr><th>${t('status')}</th><th>${t('date')}</th><th>السائق</th><th>${t('out')}</th><th>${t('returned')}</th><th>${t('lost')}</th><th>${t('notes')}</th><th>إجراءات</th></tr></thead><tbody>${rows}</tbody></table>`;
+  }
+
+  function ReportsView(){
+    return `
+      <div class="card p-4">
+        <h3 class="mb-4" style="margin:0">${t('reports')} والتحليلات</h3>
+        <div class="grid grid-2 mb-4">
+          <div class="card p-4" style="background:#eff6ff">
+            <h4 class="mb-2" style="margin:0;color:#1d4ed8">${t('generalStats')}</h4>
+            <div class="grid">
+              <div class="between"><span>${state.drivers.length}</span><span class="muted">${t('driversCount')}</span></div>
+              <div class="between"><span>${state.trips.filter(t=>t.status==='closed').length}</span><span class="muted">${t('closedTrips')}</span></div>
+              <div class="between"><span>${totals().totalBoxesOut}</span><span class="muted">${t('totalBoxes')}:</span></div>
+              <div class="between"><span>${totals().totalBoxesLost}</span><span class="muted">${t('lostBoxes')}</span></div>
+            </div>
+          </div>
+          <div class="card p-4" style="background:#ecfdf5">
+            <h4 class="mb-2" style="margin:0;color:#047857">${t('bestPerformance')}</h4>
+            <div class="grid">
+              ${state.drivers.slice().sort((a,b)=>a.lossRate-b.lossRate).slice(0,3).map((d,i)=>`
+                <div class="between"><span>${d.lossRate}%</span><span>${i+1}. ${d.name}</span></div>`).join('')}
+            </div>
+          </div>
+        </div>
+        <button class="btn btn-blue" id="export-report">${t('exportReport')}</button>
+      </div>`;
+  }
+
+  function ControlPanelView(){
+    return `
+      <div class="card p-4">
+        <h3 class="mb-2" style="margin:0">${t('control')}</h3>
+        <p class="note mb-4">تحكم بالتخزين والنسخ الاحتياطي، أو مسح البيانات.</p>
+        <div class="grid grid-2">
+          <div class="card p-4">
+            <h4 style="margin:0 0 8px 0">${t('storage')}</h4>
+            <div class="row"><span>${t('current')} <span class="kbd">${state.useLocal?'localStorage':'sessionStorage'}</span></span><button class="btn" id="toggle-storage">${t('switchTo')} ${state.useLocal?'sessionStorage':'localStorage'}</button></div>
+            <p class="note mt-2">${t('storageToggleNote')}</p>
+          </div>
+          <div class="card p-4">
+            <h4 style="margin:0 0 8px 0">${t('backup')}</h4>
+            <div class="row">
+              <button class="btn btn-blue" id="export-json">${t('exportJSON')}</button>
+              <label class="btn">${t('importJSON')}<input type="file" id="import-json" accept="application/json" style="display:none" /></label>
+            </div>
+            <p class="note mt-2">${t('backupNote')} <span class="kbd">alsahari-backup.json</span>.</p>
+          </div>
+        </div>
+        <div class="card p-4 mt-4" style="background:#fff7f7">
+          <h4 style="margin:0 0 8px 0" class="danger">${t('dangerousOps')}</h4>
+          <div class="row"><button class="btn btn-warning" id="clear-trips">${t('clearTripsOnly')}</button><button class="btn btn-danger" id="reset-all">${t('resetAllData')}</button></div>
+          <p class="note mt-2">${t('confirmBeforeExecution')}</p>
+        </div>
+      </div>`;
+  }
+
+  function AccountantDashboard(){
+    const {accountantTab}=state;
+    return `
+      ${Topbar(t('accountantDashboard'))}
+      <div class="container mt-4 grid">
+        <div class="card p-2"><div class="row">
+          <button class="tab ${accountantTab==='overview'?'active':''}" data-accountant-tab="overview">${t('overview')}</button>
+          <button class="tab ${accountantTab==='detailed'?'active':''}" data-accountant-tab="detailed">${t('detailed')}</button>
+          <button class="tab ${accountantTab==='invoices'?'active':''}" data-accountant-tab="invoices">${t('invoices')}</button>
+        </div></div>
+        ${accountantTab==='overview'?OverviewView():''}
+        ${accountantTab==='detailed'?DetailedView():''}
+        ${accountantTab==='invoices'?InvoicesView():''}
+      </div>`;
+  }
+
+  function OverviewView(){
+    const filtered = getFilteredTrips(state.dateFilter).filter(t=>t.status==='closed');
+    const lost = filtered.reduce((s,t)=>s+t.lostBoxes,0);
+    const lossAED = lost*20;
+    return `
+      <div class="card p-4 mb-4">
+        <div class="between mb-3">
+          <select id="dateFilter">
+            <option value="all"${state.dateFilter==='all'?' selected':''}>${t('allPeriods')}</option>
+            <option value="today"${state.dateFilter==='today'?' selected':''}>${t('today')}</option>
+            <option value="week"${state.dateFilter==='week'?' selected':''}>${t('thisWeek')}</option>
+            <option value="month"${state.dateFilter==='month'?' selected':''}>${t('thisMonth')}</option>
+          </select>
+          <h3 style="margin:0">${t('filterReports')}</h3>
+        </div>
+      </div>
+      <div class="grid grid-2">
+        <div class="stat"><div class="between"><span class="muted">${t('totalBoxes')} المفقودة</span><span class="danger" style="font-weight:800">${lost}</span></div></div>
+        <div class="stat"><div class="between"><span class="muted">${t('totalLoss')}</span><span class="danger" style="font-weight:800">${lossAED} ${t('aed')}</span></div></div>
+      </div>
+      <div class="card p-4 mt-4">
+        <h3 class="mb-3" style="margin:0">تكلفة الخسائر حسب السائق</h3>
+        <div class="list">
+          ${state.drivers.map(dr=>{
+            const dTrips = filtered.filter(t=>t.driverId===dr.id);
+            const dLost  = dTrips.reduce((s,t)=>s+t.lostBoxes,0);
+            const dLoss  = dLost*20;
+            return `<div class="card p-3"><div class="between"><span class="danger" style="font-weight:800">${dLoss} ${t('aed')}</span><span style="font-weight:600">${dr.name}</span></div><div class="muted" style="font-size:12px;margin-top:4px">${t('lostBoxes')}: ${dLost}</div></div>`;
+          }).join('')}
+        </div>
+      </div>`;
+  }
+
+  function DetailedView(){
+    const closed = state.trips.filter(t=>t.status==='closed');
+    return `<div class="card p-4"><h3 class="mb-4" style="margin:0">${t('detailed')} التحليل</h3><div class="list">${
+      closed.slice().reverse().map(t=>{
+        const dr = state.drivers.find(d=>d.id===t.driverId);
+        return `<div class="card p-3"><div class="between mb-2"><div class="danger" style="font-weight:800">${t.lostBoxes*20} ${t('aed')}</div><div style="text-align:right"><div style="font-weight:600">${dr?dr.name:''}</div><div class="muted" style="font-size:12px">${t.date}</div></div></div><div class="row center" style="justify-content:space-around;font-size:13px"><div>${t('out')}: <b>${t.outBoxes}</b></div><div>${t('returned')}: <b>${t.returnBoxes}</b></div><div class="danger">${t('lost')}: <b>${t.lostBoxes}</b></div></div></div>`;
+      }).join('')
+    }</div></div>`;
+  }
+
+  function InvoicesView(){
+    return `<div class="card p-4"><h3 class="mb-4" style="margin:0">${t('invoices')} الخسائر</h3><div class="card p-3 mb-3" style="background:#eff6ff">${t('boxPrice')}</div><div class="list">${
+      state.drivers.map(dr=>{
+        const lossAED = dr.lostBoxes*20; if(!lossAED) return '';
+        return `<div class="card p-4"><div class="between mb-3"><button class="btn btn-blue" data-action="make-invoice" data-id="${dr.id}">${t('createInvoice')}</button><div style="text-align:right"><div style="font-weight:700">${dr.name}</div><div class="muted" style="font-size:12px">${dr.phone}</div></div></div><div class="card p-3" style="background:#f8fafc"><div class="between"><span>${dr.lostBoxes}</span><span class="muted">${t('lostBoxesCount')}</span></div><div class="between"><span>20 ${t('aed')}</span><span class="muted">${t('boxPrice2')}</span></div><div class="divider"></div><div class="between" style="font-weight:800;color:#ef4444"><span>${lossAED} ${t('aed')}</span><span>${t('totalAmount')}</span></div></div></div>`;
+      }).join('')
+    }</div></div>`;
+  }
+
+  function getFilteredTrips(filter){
+    const today = new Date();
+    const currentMonth = today.getMonth(), currentYear = today.getFullYear();
+    if(filter==='today') return state.trips.filter(t=>t.date===todayStr());
+    if(filter==='week'){
+      const weekAgo = new Date(today.getTime()-7*24*60*60*1000);
+      return state.trips.filter(t=>new Date(t.date)>=weekAgo);
+    }
+    if(filter==='month'){
+      return state.trips.filter(t=>{ const dt = new Date(t.date); return dt.getMonth()===currentMonth && dt.getFullYear()===currentYear; });
+    }
+    return state.trips;
+  }
+
+  function App(){
+    if(!state.currentUser) return LoginScreen();
+    if(state.userType==='driver') return DriverDashboard();
+    if(state.userType==='manager') return ManagerDashboard();
+    if(state.userType==='accountant') return AccountantDashboard();
+    return '';
+  }
+
+  function render(){
+    const root = document.getElementById('app'); root.innerHTML = App();
+    if(!state.currentUser){
+      els('.role-btn').forEach(b=>b.addEventListener('click', ()=>{ state.selectedRole = b.dataset.role; el('#driver-select').style.display = b.dataset.role==='driver' ? 'block' : 'none'; }));
+      el('#login-btn').addEventListener('click', ()=>{
+        const pass = el('#password').value.trim(); const err = el('#login-error'); err.style.display='none'; const role = state.selectedRole;
+        if(role==='driver'){
+          const id = Number(el('#driverId').value); const d = state.drivers.find(x=>x.id===id);
+          if(d && d.password===pass && d.active){ state.currentUser=d; state.userType='driver'; render(); return; }
+          err.textContent = d && !d.active ? t('accountDisabled') : t('incorrectPassword'); err.style.display='block'; return;
+        }
+        if(role==='manager' && pass==='manager123'){ state.currentUser={name:t('manager')}; state.userType='manager'; render(); return; }
+        if(role==='accountant' && pass==='accountant123'){ state.currentUser={name:t('accountant')}; state.userType='accountant'; render(); return; }
+        err.style.display='block';
+      });
+      return;
+    }
+    const logout = el('#logout'); if(logout){ logout.addEventListener('click', ()=>{ state.currentUser=null; state.userType=''; render(); }); }
+    const openCtl = el('#open-control'); if(openCtl){ openCtl.addEventListener('click', ()=>{ state.managerTab='control'; render(); }); }
+
+    // Driver tabs and actions
+    if(state.userType==='driver'){
+      els('[data-driver-tab]').forEach(t=>t.addEventListener('click',()=>{ state.driverTab=t.dataset.driverTab; render(); }));
+      els('[data-action="whats"]').forEach(b=>b.addEventListener('click',()=>{ const d = state.drivers.find(x=>x.id==b.dataset.id); if(d) whatsappAlertFor(d); }));
+      
+      const addCust = el('#add-customer');
+      if(addCust){
+        addCust.addEventListener('click', ()=>{
+          const wrap = el('#customers-wrap'); const row = document.createElement('div'); row.className='row'; 
+          row.innerHTML = `<button class="btn remove-cust">${t('removeCustomer')}</button><input type="text" class="customer-input" placeholder="${t('customer')}">`;
+          wrap.appendChild(row); row.querySelector('.remove-cust').addEventListener('click', ()=>row.remove());
+        });
+        const firstRemove = el('#remove-customer'); 
+        if(firstRemove) firstRemove.addEventListener('click', ()=>{ const rows = els('#customers-wrap .row'); if(rows.length>1) rows[rows.length-1].remove(); });
+      }
+
+      const submitCheckout = el('#submit-checkout');
+      if(submitCheckout){
+        submitCheckout.addEventListener('click', ()=>{
+          const out = Number(el('#outBoxes')?.value||0);
+          if(!out){ alert(t('enterOutBoxes')); return; }
+          const customers = els('.customer-input').map(i=>i.value.trim()).filter(Boolean);
+          addCheckoutTrip({ driverId: state.currentUser.id, outBoxes: out, customers });
+        });
+      }
+
+      els('.do-close').forEach(btn=>btn.addEventListener('click', ()=>{
+        const id = Number(btn.dataset.trip);
+        const retInput = document.querySelector(`.ret-input[data-trip="${id}"]`);
+        const noteInput = document.querySelector(`.note-input[data-trip="${id}"]`);
+        const ret = Number(retInput?.value||0);
+        const trip = state.trips.find(t=>t.id===id);
+        if(!trip) return;
+        if(ret>trip.outBoxes){ alert(t('returnCannotExceedOut')); return; }
+        closeTrip({ tripId:id, returnBoxes: ret, notes: noteInput?.value||'' });
+      }));
+      els('.do-del').forEach(btn=>btn.addEventListener('click', ()=>{
+        const id = Number(btn.dataset.trip); deleteTrip(id);
+      }));
+      const clearN = el('#clear-notifs'); if(clearN){ clearN.addEventListener('click', ()=>{ state.notifications=[]; render(); }); }
+    }
+
+    // Manager bindings
+    if(state.userType==='manager'){
+      els('[data-action="whats"]').forEach(b=>{
+        b.addEventListener('click', ()=>{
+          const d = state.drivers.find(x=>x.id==b.dataset.id);
+          if(d) whatsappAlertFor(d);
+        });
+      });
+
+      els('[data-manager-tab]').forEach(t=>t.addEventListener('click',()=>{ state.managerTab=t.dataset.managerTab; render(); }));
+      const showAdd = el('#show-add-driver'); if(showAdd){ showAdd.addEventListener('click', ()=>{ el('#add-driver-form').style.display='block'; }); }
+      const cancelAdd = el('#cancel-add'); if(cancelAdd){ cancelAdd.addEventListener('click', ()=>{ el('#add-driver-form').style.display='none'; }); }
+      const doAdd = el('#do-add'); if(doAdd){ doAdd.addEventListener('click', ()=>{ addDriver({ name: el('#d-name').value.trim(), phone: el('#d-phone').value.trim(), password: el('#d-pass').value.trim(), monthlyTarget: Number(el('#d-target').value||1000) }); el('#add-driver-form').style.display='none'; }); }
+      
+      const list = document.getElementById('drivers-list');
+      if(list){
+        list.addEventListener('click', (e)=>{
+          const btn = e.target.closest('button'); if(!btn) return; const id = Number(btn.dataset.id);
+          if(btn.dataset.action==='delete-driver'){ deleteDriver(id); }
+          if(btn.dataset.action==='whats'){ const d = state.drivers.find(x=>x.id===id); if(d) whatsappAlertFor(d); }
+          if(btn.dataset.action==='edit-driver'){
+            const d = state.drivers.find(x=>x.id===id); if(!d) return;
+            el('#edit-driver-form').style.display='block';
+            el('#e-id').value=d.id; el('#e-name').value=d.name; el('#e-phone').value=d.phone; el('#e-pass').value=d.password; el('#e-target').value=d.monthlyTarget;
+          }
+        });
+        const cancelEdit = el('#cancel-edit'); if(cancelEdit){ cancelEdit.addEventListener('click', ()=>{ el('#edit-driver-form').style.display='none'; }); }
+        const doEdit = el('#do-edit'); if(doEdit){ doEdit.addEventListener('click', ()=>{ const id = Number(el('#e-id').value); updateDriver(id,{ name:el('#e-name').value.trim(), phone:el('#e-phone').value.trim(), password:el('#e-pass').value.trim(), monthlyTarget: Number(el('#e-target').value||1000) }); el('#edit-driver-form').style.display='none'; alert(t('updateDriverSuccess')); }); }
+      }
+
+      const exportBtn = el('#export-report'); if(exportBtn){ exportBtn.addEventListener('click', ()=>{ const {totalBoxesOut,totalBoxesLost,totalLoss}=totals(); const top = state.drivers.slice().sort((a,b)=>a.lossRate-b.lossRate).slice(0,5); const report = { date: new Date().toLocaleDateString(currentLang === 'ar' ? 'ar-AE' : 'en-US'), drivers: state.drivers.length, tripsClosed: state.trips.filter(t=>t.status==='closed').length, totalBoxes: totalBoxesOut, lostBoxes: totalBoxesLost, totalLoss: totalLoss, topPerformers: top }; const blob = new Blob([JSON.stringify(report,null,2)],{type:'application/json'}); const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download='report.json'; a.click(); }); }
+      
+      const toggleSt = el('#toggle-storage'); if(toggleSt){ toggleSt.addEventListener('click', ()=>{ state.useLocal = !state.useLocal; const S = state.useLocal ? localStorage : sessionStorage; S.setItem('drivers', JSON.stringify(state.drivers)); S.setItem('trips', JSON.stringify(state.trips)); S.setItem('baseDrivers', JSON.stringify(state.baseDrivers)); localStorage.setItem('useLocal', JSON.stringify(state.useLocal)); alert('تم تبديل نوع التخزين بنجاح إلى ' + (state.useLocal?'localStorage':'sessionStorage')); render(); }); }
+      const clearTripsBtn = el('#clear-trips'); if(clearTripsBtn){ clearTripsBtn.addEventListener('click', ()=>{ if(!confirm('مسح جميع الرحلات؟')) return; state.trips = []; recomputeFromTrips(); persist(); render(); }); }
+
+      const tripsTable = document.querySelector('table.table'); if(tripsTable){
+        tripsTable.addEventListener('click', (e)=>{
+          const row = e.target.closest('tr[data-trip]'); if(!row) return;
+          const id = Number(row.dataset.trip);
+          if(e.target.classList.contains('do-del')){ deleteTrip(id); return; }
+          if(e.target.classList.contains('do-close')){
+            const ret = Number(row.querySelector('.trip-ret').value||0);
+            const trip = state.trips.find(t=>t.id===id);
+            if(!trip) return;
+            if(ret>trip.outBoxes){ alert(t('returnCannotExceedOut')); return; }
+            closeTrip({ tripId:id, returnBoxes: ret, notes: row.querySelector('.trip-notes').value });
+          }
+        });
+      }
+    }
+
+    // Accountant bindings
+    if(state.userType==='accountant'){
+      els('[data-accountant-tab]').forEach(t=>t.addEventListener('click',()=>{ state.accountantTab=t.dataset.accountantTab; render(); }));
+      const df = el('#dateFilter'); if(df){ df.addEventListener('change', ()=>{ state.dateFilter=df.value; render(); }); }
+      els('[data-action="make-invoice"]').forEach(b=>b.addEventListener('click', ()=>{ const d = state.drivers.find(x=>x.id==b.dataset.id); const loss = (d?.lostBoxes||0)*20; alert(`${t('invoices')} ${d?.name}\n${t('lostBoxes')}: ${d?.lostBoxes}\n${t('totalAmount')}: ${loss} ${t('aed')}\n\nسيتم إرسال الفاتورة قريباً`); }));
+    }
+
+    // Language toggle setup
+    document.querySelectorAll('.lang-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        setLanguage(btn.dataset.lang);
+      });
+    });
+  }
+
+  // Initialize app
+  recomputeFromTrips();
+  setLanguage(currentLang);
+  render();
+  </script>
+</body>
+</html>
